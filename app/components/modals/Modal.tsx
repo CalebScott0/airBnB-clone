@@ -58,6 +58,7 @@ const Modal: React.FC<ModalProps> = ({
   }, [disabled, secondaryAction]);
 
   // must be above return null conditional to avoid extra render error
+  //  remove this if it interferes with loading aspects!!
   useEffect(() => {
     const handleEscapeKeyClose = (event: KeyboardEvent) => {
       if (event.key === "Escape" && isOpen) {
