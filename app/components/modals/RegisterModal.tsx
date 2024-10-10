@@ -37,6 +37,17 @@ const RegisterModal = () => {
     },
   });
 
+  register("password", {
+    minLength: {
+      value: 8,
+      message: "Password must be at least 8 characters",
+    },
+    maxLength: {
+      value: 20,
+      message: "Password must be shorter than 20 characters",
+    },
+  });
+
   //   type = submit handler - with field values provides type safety for data
   //   data can only be from field values
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
@@ -83,6 +94,7 @@ const RegisterModal = () => {
         register={register}
         errors={errors}
         required
+        error={errors.password}
       />
     </div>
   );

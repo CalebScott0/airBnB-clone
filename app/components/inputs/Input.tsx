@@ -61,7 +61,7 @@ const Input: React.FC<InputProps> = ({
       >
         {label}
       </label>
-      {errorMessage && <div className="text-rose-500">{errorMessage}</div>}
+      {errorMessage && <div className="mt-2 text-rose-500">{errorMessage}</div>}
     </div>
   );
 };
