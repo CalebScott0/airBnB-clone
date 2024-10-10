@@ -5,15 +5,21 @@ import { AiFillGithub } from "react-icons/ai";
 import { FcGoogle } from "react-icons/fc";
 import { useCallback, useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
-import useRegisterModal from "@/app/hooks/useRegisterModal";
 import Modal from "./Modal";
 import Heading from "../Heading";
 import Input from "../inputs/Input";
 import toast from "react-hot-toast";
 import Button from "../Button";
+import useRegisterModal from "@/app/hooks/useRegisterModal";
+import useLoginModal from "@/app/hooks/useLoginModal";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
-const RegisterModal = () => {
+const LoginModal = () => {
   const registerModal = useRegisterModal();
+  const loginModal = useLoginModal();
+
+  const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -25,7 +31,6 @@ const RegisterModal = () => {
     reset,
   } = useForm<FieldValues>({
     defaultValues: {
-      name: "",
       email: "",
       password: "",
     },
@@ -45,11 +50,11 @@ const RegisterModal = () => {
   register("password", {
     minLength: {
       value: 8,
-      message: "Password is at least 8 characters",
+      message: "Password must be at least 8 characters",
     },
     maxLength: {
       value: 20,
-      message: "Password is shorter than 20 characters",
+      message: "Password must be shorter than 20 characters",
     },
   });
 
@@ -57,32 +62,26 @@ const RegisterModal = () => {
   //   data can only be from field values
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     setIsLoading(true);
+    // in [...nextauth].ts credentials provider is set with an email and a password
+    signIn("credentials", { ...data, redirect: false }).then((callback) => {
+      setIsLoading(false);
 
-    axios
-      .post("/api/register", data)
-      .then(() => {
-        registerModal.onClose();
-      })
-      .then(() => {
-        // clear form fields on success
-        reset();
-      })
-      .catch((error) => {
-        if (error?.response.data.error) {
-          // handles if user attempts to sign up with a duplicate email
-          setError(error.response.data.error);
-        } else {
-          toast.error("Something went wrong.");
-        }
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      // if successful sign in
+      if (callback?.ok) {
+        toast.success("Logged in");
+        router.refresh();
+        loginModal.onClose();
+      }
+
+      if (callback?.error) {
+        toast.error(callback.error);
+      }
+    });
   };
 
   const bodyContent = (
     <div className="flex flex-col gap-4">
-      <Heading title="Welcome to Airbnb" subtitle="Create an account!" />
+      <Heading title="Welcome back" subtitle="Log in to your account!" />
       <Input
         id="email"
         label="Email"
@@ -91,14 +90,6 @@ const RegisterModal = () => {
         errors={errors}
         required
         error={errors.email}
-      />
-      <Input
-        id="name"
-        label="Name"
-        disabled={isLoading}
-        register={register}
-        errors={errors}
-        required
       />
       <Input
         id="password"
@@ -131,12 +122,12 @@ const RegisterModal = () => {
       />
       <div className="mt-4 text-center font-light text-neutral-500">
         <div className="flex flex-row items-center justify-center gap-2">
-          <div>Already have an account?</div>
+          <div>Need to create an account?</div>
           <div
-            onClick={registerModal.onClose}
+            onClick={loginModal.onClose}
             className="cursor-pointer text-neutral-800 hover:underline"
           >
-            Log in
+            Register
           </div>
         </div>
       </div>
@@ -146,10 +137,10 @@ const RegisterModal = () => {
   return (
     <Modal
       disabled={isLoading}
-      isOpen={registerModal.isOpen}
-      title="Register"
+      isOpen={loginModal.isOpen}
+      title="Login"
       actionLabel="Continue"
-      onClose={registerModal.onClose}
+      onClose={loginModal.onClose}
       onSubmit={handleSubmit(onSubmit)}
       body={bodyContent}
       footer={footerContent}
@@ -157,4 +148,4 @@ const RegisterModal = () => {
   );
 };
 
-export default RegisterModal;
+export default LoginModal;

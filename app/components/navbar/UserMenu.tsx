@@ -5,9 +5,11 @@ import Avatar from "../Avatar";
 import { useCallback, useState, useRef, useEffect } from "react";
 import MenuItem from "./MenuItem";
 import useRegisterModal from "@/app/hooks/useRegisterModal";
+import useLoginModal from "@/app/hooks/useLoginModal";
 
 const UserMenu = () => {
   const registerModal = useRegisterModal();
+  const loginModal = useLoginModal();
 
   // explicit type of either HtmlDivElement or null to remove error .contains
   // checks if null before calling contains
@@ -71,6 +73,7 @@ const UserMenu = () => {
             <>
               <MenuItem
                 onClick={() => {
+                  loginModal.onOpen();
                   setIsOpen(!isOpen);
                 }}
                 label="Login"
