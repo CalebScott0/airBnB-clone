@@ -63,18 +63,18 @@ const LoginModal = () => {
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     setIsLoading(true);
     // in [...nextauth].ts credentials provider is set with an email and a password
-    signIn("credentials", { ...data, redirect: false }).then((callback) => {
+    signIn("credentials", { ...data, redirect: false }).then((login) => {
       setIsLoading(false);
 
       // if successful sign in
-      if (callback?.ok) {
+      if (login?.ok) {
         toast.success("Logged in");
         router.refresh();
         loginModal.onClose();
       }
 
-      if (callback?.error) {
-        toast.error(callback.error);
+      if (login?.error) {
+        toast.error(login.error);
       }
     });
   };

@@ -62,8 +62,6 @@ const RegisterModal = () => {
       .post("/api/register", data)
       .then(() => {
         registerModal.onClose();
-      })
-      .then(() => {
         // clear form fields on success
         reset();
       })
