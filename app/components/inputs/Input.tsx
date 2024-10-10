@@ -1,6 +1,13 @@
 "use client";
 
-import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
+import {
+  FieldErrors,
+  FieldValues,
+  UseFormRegister,
+  FieldError,
+  Merge,
+  FieldErrorsImpl,
+} from "react-hook-form";
 import { BiDollar } from "react-icons/bi";
 
 interface InputProps {
@@ -12,6 +19,8 @@ interface InputProps {
   required?: boolean;
   register: UseFormRegister<FieldValues>;
   errors: FieldErrors;
+  // type matching for react hook form errors
+  error?: FieldError | Merge<FieldError, FieldErrorsImpl<any>> | undefined;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -24,7 +33,11 @@ const Input: React.FC<InputProps> = ({
   required,
   //   errors is an object, can look for id of input in errors object for class conditional
   errors,
+  error,
 }) => {
+  // only take error if it is a string
+  const errorMessage =
+    error && typeof error.message === "string" ? error.message : null;
   return (
     <div className="relative w-full">
       {formatPrice && (
@@ -48,6 +61,7 @@ const Input: React.FC<InputProps> = ({
       >
         {label}
       </label>
+      {errorMessage && <div className="text-rose-500">{errorMessage}</div>}
     </div>
   );
 };

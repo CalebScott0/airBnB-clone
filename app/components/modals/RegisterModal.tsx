@@ -29,6 +29,14 @@ const RegisterModal = () => {
     },
   });
 
+  register("email", {
+    pattern: {
+      // matches only letters after the . and requires at least 2 letters in the top-level domain (part after the .)
+      value: /^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$/,
+      message: "Invalid email format",
+    },
+  });
+
   //   type = submit handler - with field values provides type safety for data
   //   data can only be from field values
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
@@ -57,6 +65,7 @@ const RegisterModal = () => {
         register={register}
         errors={errors}
         required
+        error={errors.email}
       />
       <Input
         id="name"

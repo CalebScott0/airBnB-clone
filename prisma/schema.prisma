@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  name            String?
+  email           String?   @unique
+  email_verified  DateTime?
+  image           String?
+  hashed_password String?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  favorite_ids    String[]  @db.ObjectId
+
+  accounts     Account[]
+  listings     Listing[]
+  reservations Reservation[]
+}
+
+// for social logins to work
+model Account {
+  id                  String  @id @default(auto()) @map("_id") @db.ObjectId
+  user_id             String  @db.ObjectId
+  type                String
+  provider            String
+  provider_account_id String
+  refresh_token       String? @db.String
+  access_token        String? @db.String
+  expires_at          Int?
+  token_type          String?
+  scope               String?
+  id_token            String? @db.String
+  session_state       String?
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([provider, provider_account_id])
+}
+
+model Listing {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  title          String
+  description    String
+  image_src      String
+  created_at     DateTime @default(now())
+  category       String
+  room_count     Int
+  bathroom_count Int
+  guest_count    Int
+  location_value String
+  user_id        String   @db.ObjectId
+  price          Int
+
+  user         User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  reservations Reservation[]
+}
+
+model Reservation {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  user_id     String   @db.ObjectId
+  listing_id  String   @db.ObjectId
+  start_date  DateTime
+  end_date    DateTime
+  total_price Int
+  created_at  DateTime @default(now())
+
+  user    User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  listing Listing @relation(fields: [listing_id], references: [id], onDelete: Cascade)
+}
