@@ -57,9 +57,20 @@ const Modal: React.FC<ModalProps> = ({
     secondaryAction();
   }, [disabled, secondaryAction]);
 
-  if (!isOpen) {
-    return null;
-  }
+  // must be above return null conditional to avoid extra render error
+  useEffect(() => {
+    const handleEscapeKeyClose = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isOpen) {
+        handleClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscapeKeyClose);
+
+    return () => document.removeEventListener("keydown", handleEscapeKeyClose);
+  }, [isOpen, handleClose]);
+
+  if (!isOpen) return null;
 
   return (
     <>
